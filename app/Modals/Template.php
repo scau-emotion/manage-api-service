@@ -29,24 +29,29 @@ class Template extends Model
 
     public static function createTemplate($image, $description)
     {
+        // 参数非空校验
+        if (empty($image) || empty($description)) {
+            throw new LogicException(...Dictionary::CreateTemplateError);
+        }
+
         $value = [
             'image' => $image,
             'description' => $description
         ];
 
-        return DB::table(static::$table_name)->insert($value);
+        return DB::table(static::$table_name)->insertGetId($value);
     }
 
-    public static function updateTemplate($image, $description)
+    public static function updateTemplate($id, $image = null, $description = null)
     {
         $condition = [
             'id' => $id
         ];
 
-        $value = [
-            'image' => $image,
-            'description' => $description
-        ];
+        // 组装需要修改的部分，非修改部分可以传空串或者 null
+        $value = [];
+        !empty($image) && $value['image'] = $image;
+        !empty($description) && $value['description'] = $description;
 
         if ($rows = DB::table(static::$table_name)->where($condition)->count() == 0) {
             throw new LogicException(...Dictionary::UpdateTemplateError);

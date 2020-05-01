@@ -17,7 +17,7 @@ class CreateTemplatesTable extends Migration
             $table->id();
             $table->string('image');
             $table->string('description');
-            $table->timestamps();
+//            $table->timestamps();
         });
     }
 

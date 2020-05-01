@@ -17,23 +17,42 @@ class TemplateController extends Controller
         return $this->response(Template::getTemplateList($page_size, $page));
     }
 
+    public function create(Request $request)
+    {
+        $this->validate($request, [
+            'image' => ['required'],
+            'description' => ['required'],
+        ]);
+
+        $image = $request->input('image');
+        $description = $request->input('description');
+        $result = Template::createTemplate($image, $description);
+
+        if ($result == false) {
+            throw new LogicException(...Dictionary::InternalError);
+        }
+
+        return $this->response(['id' => $result]);
+    }
+
+
     public function update(Request $request)
     {
 
-        $email = $request->input('email');
-        $password = $request->input('password');
+        $image = $request->input('image');
+        $description = $request->input('description');
         $id = $request->input('id') ?? '';
 
         if (empty($id)) {
-            $result = Template::createTemplate($email, $password);
+            $result = Template::createTemplate($image, $description);
         } else {
-            $result = Template::updateTemplate($id, $email, $password);
+            $result = Template::updateTemplate($id, $image, $description);
         }
 
         if ($result == false) {
             throw new LogicException(...Dictionary::InternalError);
         }
 
-        return $this->response();
+        return $this->response(['id' => empty($id) ? $result : $id]);
     }
 }

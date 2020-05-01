@@ -47,13 +47,28 @@ class UserController extends Controller
         return $this->response(User::getUserList($page_size, $page));
     }
 
-    public function update(Request $request)
+    public function create(Request $request)
     {
+
         $this->validate($request, [
             'email' => ['required'],
             'password' => ['required'],
         ]);
 
+        $email = $request->input('email');
+        $password = $request->input('password');
+
+        $result = User::createUser($email, $password);
+
+        if ($result == false) {
+            throw new LogicException(...Dictionary::InternalError);
+        }
+
+        return $this->response(['id' => $result]);
+    }
+
+    public function update(Request $request)
+    {
         $email = $request->input('email');
         $password = $request->input('password');
         $id = $request->input('id') ?? '';
@@ -68,6 +83,6 @@ class UserController extends Controller
             throw new LogicException(...Dictionary::InternalError);
         }
 
-        return $this->response();
+        return $this->response(['id' => empty($id) ? $result : $id]);
     }
 }

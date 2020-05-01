@@ -48,6 +48,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     public static function createUser($email, $password)
     {
+        // 参数非空校验
+        if (empty($email) || empty($password)) {
+            throw new LogicException(...Dictionary::CreateUserInfoError);
+        }
+
         $condition = [
             'email' => $email,
         ];
@@ -58,10 +63,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         ];
 
         if ($rows = DB::table(static::$table_name)->where($condition)->count() > 0) {
-            throw new LogicException(...Dictionary::CreateUserError);
+            throw new LogicException(...Dictionary::CreateUserEmailExist);
         }
 
-        return DB::table(static::$table_name)->insert($value);
+        return DB::table(static::$table_name)->insertGetId($value);
     }
 
     public static function updateUser($id, $email, $password)
@@ -70,10 +75,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             'id' => $id
         ];
 
-        $value = [
-            'email' => $email,
-            'password' => md5($password . static::$password_salt)
-        ];
+        // 组装需要修改的部分，非修改部分可以传空串或者 null
+        $value = [];
+        !empty($email) && $value['email'] = $email;
+        !empty($password) && $value['password'] = $password;
+
 
         if ($rows = DB::table(static::$table_name)->where($condition)->count() == 0) {
             throw new LogicException(...Dictionary::UpdateUserError);
