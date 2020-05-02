@@ -24,7 +24,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     {
         $condition = [
             'email' => $email,
-            'password' => md5($password . 'emotion')
+            'password' => md5($password . static::$password_salt)
         ];
         $rows = DB::table(static::$table_name)->where($condition)->count();
 
@@ -78,8 +78,12 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         // 组装需要修改的部分，非修改部分可以传空串或者 null
         $value = [];
         !empty($email) && $value['email'] = $email;
-        !empty($password) && $value['password'] = $password;
+        !empty($password) && $value['password'] = md5($password . static::$password_salt);
 
+        // 未作修改
+        if (empty($value)) {
+            return true;
+        }
 
         if ($rows = DB::table(static::$table_name)->where($condition)->count() == 0) {
             throw new LogicException(...Dictionary::UpdateUserError);

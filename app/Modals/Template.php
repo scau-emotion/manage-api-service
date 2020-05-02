@@ -53,6 +53,11 @@ class Template extends Model
         !empty($image) && $value['image'] = $image;
         !empty($description) && $value['description'] = $description;
 
+        // 未作修改
+        if (empty($value)) {
+            return true;
+        }
+
         if ($rows = DB::table(static::$table_name)->where($condition)->count() == 0) {
             throw new LogicException(...Dictionary::UpdateTemplateError);
         }
