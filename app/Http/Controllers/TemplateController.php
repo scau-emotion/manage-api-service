@@ -176,4 +176,50 @@ class TemplateController extends Controller
 
         return $this->response(['id' => empty($id) ? $result : $id]);
     }
+
+
+    /**
+     * @OA\Post(
+     *     path="/v1/delete_template",
+     *     summary="删除模板",
+     *     tags={"template"},
+     *     @OA\RequestBody(
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 required={"id"},
+     *                 @OA\Property(
+     *                     property="id",
+     *                     type="integer",
+     *                 ),
+     *                 example={"id": 9}
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *          @OA\JsonContent(
+     *             type="object",
+     *                  @OA\Property(
+     *                       property="id",
+     *                       type="integer"
+     *                   ),
+     *                   example={"id": 9}
+     *         ),
+     *     )
+     * )
+     */
+
+    public function delete(Request $request)
+    {
+        $this->validate($request, [
+            'id' => ['required'],
+        ]);
+
+        $id = $request->input('id');
+        $result = Template::deleteTemplate($id);
+
+        return $this->response(['id' => $id]);
+    }
 }

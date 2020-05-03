@@ -129,4 +129,40 @@ class ExampleTest extends TestCase
         $this->assertEquals(0, $result['code']);
         $this->assertArrayHasKey('token', $result['data']);
     }
+
+    public function testDeleteUser()
+    {
+        // 新增用户
+        $data = [
+            'email' => 'test_email'.uniqid().'@a.com',
+            'password' => 'test_create_password'
+        ];
+        $this->json('POST', '/v1/create_user', $data);
+        $result = json_decode($this->response->getContent(), true);
+
+        $this->assertEquals(0, $result['code']);
+        $data_for_delete = $result['data'];
+
+        // 测试是否登录成功
+        $this->json('POST', '/v1/login', $data);
+        $result = json_decode($this->response->getContent(), true);
+
+        $this->assertEquals(0, $result['code']);
+        $this->assertArrayHasKey('token', $result['data']);
+
+
+        // 删除用户
+        $this->json('POST', '/v1/delete_user', $data_for_delete);
+        $result = json_decode($this->response->getContent(), true);
+
+        $this->assertEquals(0, $result['code']);
+        $this->assertEquals($data_for_delete['id'], $result['data']['id']);
+
+
+        // 测试是否登录成功
+        $this->json('POST', '/v1/login', $data);
+        $result = json_decode($this->response->getContent(), true);
+
+        $this->assertEquals(500001, $result['code']);
+    }
 }

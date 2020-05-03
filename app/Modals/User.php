@@ -63,7 +63,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         ];
 
         if ($rows = DB::table(static::$table_name)->where($condition)->count() > 0) {
-            throw new LogicException(...Dictionary::CreateUserEmailExist);
+            throw new LogicException(...Dictionary::UserEmailExistError);
         }
 
         return DB::table(static::$table_name)->insertGetId($value);
@@ -86,10 +86,23 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
 
         if ($rows = DB::table(static::$table_name)->where($condition)->count() == 0) {
-            throw new LogicException(...Dictionary::UpdateUserError);
+            throw new LogicException(...Dictionary::UserNotFoundError);
         }
 
         return DB::table(static::$table_name)->where($condition)->update($value);
+    }
+
+    public static function deleteUser($id)
+    {
+        $condition = [
+            'id' => $id
+        ];
+
+        if ($rows = DB::table(static::$table_name)->where($condition)->count() == 0) {
+            throw new LogicException(...Dictionary::UserNotFoundError);
+        }
+
+        return DB::table(static::$table_name)->where($condition)->delete();
     }
 
 }

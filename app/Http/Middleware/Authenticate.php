@@ -2,28 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions\Dictionary;
+use App\Exceptions\LogicException;
 use Closure;
-use Illuminate\Contracts\Auth\Factory as Auth;
 
 class Authenticate
 {
-    /**
-     * The authentication guard factory instance.
-     *
-     * @var \Illuminate\Contracts\Auth\Factory
-     */
-    protected $auth;
-
-    /**
-     * Create a new middleware instance.
-     *
-     * @param  \Illuminate\Contracts\Auth\Factory  $auth
-     * @return void
-     */
-    public function __construct(Auth $auth)
-    {
-        $this->auth = $auth;
-    }
 
     /**
      * Handle an incoming request.
@@ -35,10 +19,22 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        if ($this->auth->guard($guard)->guest()) {
-            return response('Unauthorized.', 401);
+        if (env('APP_ENV') == strtolower('production')) {
+            if (empty($request->input('token')) || !$this->checkToken($request->input('token'))) {
+                throw new LogicException(...Dictionary::LoginInfoError);
+            }
         }
 
         return $next($request);
+    }
+
+    public function checkToken($token)
+    {
+        $token = explode(',', base64_decode($token));
+        $token_verify = md5($token[0] . ',' . $token[1] . ',emotion_token');
+        if (time() < $token[1] AND $token_verify = $token_verify[3]) {
+            return true;
+        }
+        return false;
     }
 }

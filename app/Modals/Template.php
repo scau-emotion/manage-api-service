@@ -59,10 +59,22 @@ class Template extends Model
         }
 
         if ($rows = DB::table(static::$table_name)->where($condition)->count() == 0) {
-            throw new LogicException(...Dictionary::UpdateTemplateError);
+            throw new LogicException(...Dictionary::TemplateNotFoundError);
         }
 
         return DB::table(static::$table_name)->where($condition)->update($value);
     }
 
+    public static function deleteTemplate($id)
+    {
+        $condition = [
+            'id' => $id
+        ];
+
+        if ($rows = DB::table(static::$table_name)->where($condition)->count() == 0) {
+            throw new LogicException(...Dictionary::TemplateNotFoundError);
+        }
+
+        return DB::table(static::$table_name)->where($condition)->delete();
+    }
 }

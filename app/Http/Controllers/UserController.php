@@ -76,7 +76,7 @@ class UserController extends Controller
         // 生成 token 的规则
         $user = User::getUserInfo($email, $password);
         $token_body = $user->id . ',' . (time() + 3600);
-        $token_verify = md5($token_body . 'emotion_token');
+        $token_verify = md5($token_body . ',emotion_token');
         $token = base64_encode($token_body . ',' . $token_verify);
 
         return $this->response(['token' => $token]);
@@ -280,5 +280,51 @@ class UserController extends Controller
         }
 
         return $this->response(['id' => empty($id) ? $result : $id]);
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/v1/delete_user",
+     *     summary="删除用户",
+     *     tags={"user"},
+     *     @OA\RequestBody(
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 required={"id"},
+     *                 @OA\Property(
+     *                     property="id",
+     *                     type="integer",
+     *                 ),
+     *                 example={"id":9}
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="OK",
+     *          @OA\JsonContent(
+     *             type="object",
+     *                  @OA\Property(
+     *                       property="id",
+     *                       type="integer"
+     *                   ),
+     *                   example={"id": 9}
+     *         ),
+     *     )
+     * )
+     */
+
+    public function delete(Request $request)
+    {
+        $this->validate($request, [
+            'id' => ['required'],
+        ]);
+
+        $id = $request->input('id');
+        $result = User::deleteUser($id);
+
+        return $this->response(['id' => $id]);
     }
 }

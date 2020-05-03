@@ -106,4 +106,31 @@ class TemplateInterfaceTest extends TestCase
         $this->assertEquals(0, $result['code']);
         $this->assertGreaterThanOrEqual(1, $result['data']['id']);
     }
+
+    public function testDeleteTemplate()
+    {
+        // 新增模板
+        $data = [
+            'image' => 'test_delete_url',
+            'description' => 'test_delete_description'
+        ];
+        $this->json('POST', '/v1/create_template', $data);
+        $result = json_decode($this->response->getContent(), true);
+
+        $this->assertEquals(0, $result['code']);
+        $data_for_delete =  $result['data'];
+
+        // 删除模板
+        $this->json('POST', '/v1/delete_template', $data_for_delete);
+        $result = json_decode($this->response->getContent(), true);
+
+        $this->assertEquals(0, $result['code']);
+
+        // 尝试更新已经被删除的模板
+        $data = array_merge($data, $data_for_delete);
+        $this->json('POST', '/v1/update_template', $data);
+        $result = json_decode($this->response->getContent(), true);
+
+        $this->assertEquals(500006, $result['code']);
+    }
 }

@@ -1,24 +1,61 @@
-# Lumen PHP Framework
+# manage-api-service
 
-[![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework)
-[![Total Downloads](https://poser.pugx.org/laravel/lumen-framework/d/total.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/lumen-framework/v/stable.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![License](https://poser.pugx.org/laravel/lumen-framework/license.svg)](https://packagist.org/packages/laravel/lumen-framework)
+## 部署
 
-Laravel Lumen is a stunningly fast PHP micro-framework for building web applications with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Lumen attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as routing, database abstraction, queueing, and caching.
+### 环境要求
+- PHP 7.2 +
+- mbstring
 
-## Official Documentation
+### 部署方式
 
-Documentation for the framework can be found on the [Lumen website](https://lumen.laravel.com/docs).
+1. 参照 lumen 框架，完成依赖安装
 
-## Contributing
+    ```shell
+    composer install
+    ```
+2. 将 web 根目录设置为 `public`
 
-Thank you for considering contributing to Lumen! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. 设置 `storage` 文件夹权限为可读并递归
 
-## Security Vulnerabilities
 
-If you discover a security vulnerability within Lumen, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+## 单元测试
 
-## License
+```shell
+vendor/bin/phpunit tests
+```
 
-The Lumen framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 调用说明
+
+1. 系统响应按照以下预定格式返回，API 文档中所描述的字段均为 data 结构体内的内容。
+    ```json
+    {
+        "code": 0,
+        "message": "",
+        "data": [
+            {
+                "id": "7",
+                "email": "test_email1588406595@a.com",
+                "password": "19c41824963d46aafc19be7903d0dff6"
+            },
+            {
+                "id": "8",
+                "email": "test_email1588406898@a.com",
+                "password": "19c41824963d46aafc19be7903d0dff6"
+            },
+            {
+                "id": "10",
+                "email": "test_email1588406985@a.com",
+                "password": "19c41824963d46aafc19be7903d0dff6"
+            }
+        ]
+    }
+    ```
+
+2. 在生产环境(APP_ENV=`production`)时，服务将会开启调用鉴权。需要以 query_strings (即 GET 请求中参数) 的形式传递登录接口(/v1/login)所返回的 token 信息。单次 token 有效时间为 3600 秒。
+
+## 附录
+
+- 错误码配置文件：`app/Exceptions/Dictionary.php`
+- 路由配置文件：`routes/web.php`
+- Swagger 文档接口：`/docs`
+- Swagger UI：`/api/documentation`
