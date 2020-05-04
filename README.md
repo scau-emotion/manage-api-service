@@ -8,21 +8,34 @@
 
 ### 部署方式
 
-1. 参照 lumen 框架，完成依赖安装
+1. 常规部署参照 lumen 框架，安装依赖即可
 
     ```shell
     composer install
     ```
-2. 将 web 根目录设置为 `public`
-
-3. 设置 `storage` 文件夹权限为可读并递归
+2. 建议使用 docker 部署，参考如下：、
+    
+    ```shell
+    # 构建基础运行环境镜像(只需执行一次)
+    cd docker/php-base
+    docker build -t php-base .
+    
+    # 构建、集成项目
+    cd docker/php-{你的运行环境，如 test}
+    docker build -t manage-api .
+     
+    # 运行容器
+    docker run -d -p 8000:8000 manage-api
+   ```
 
 
 ## 单元测试
 
+在项目构建过程中，将会自动完成单元测试
 ```shell
 vendor/bin/phpunit tests
 ```
+
 
 ## 调用说明
 
