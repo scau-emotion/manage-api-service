@@ -1,0 +1,29 @@
+# 源镜像
+FROM composer:1.10 as composer
+FROM php:7.4-fpm-alpine
+
+# 维护信息
+MAINTAINER Rytia <admin@zzfly.net>
+
+# 替换软件源
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+
+# 安装编译工具
+RUN apk add autoconf gcc g++ automake make zlib-dev linux-headers libstdc++
+
+# 安装扩展
+RUN pecl install -o -f grpc && docker-php-ext-enable grpc
+RUN pecl install -o -f protobuf && docker-php-ext-enable protobuf
+RUN pecl install -o -f redis && docker-php-ext-enable redis
+RUN docker-php-ext-install pdo_mysql opcache
+
+RUN apk del gcc g++ automake make autoconf
+RUN rm -rf /tmp/pear
+
+# 复制 composer
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+# 完成
+RUN php -v
+RUN php -m
+RUN composer -V --no-ansi

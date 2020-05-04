@@ -1,0 +1,26 @@
+# 源镜像
+FROM emotion-php:base
+
+# 维护信息
+MAINTAINER Rytia <admin@zzfly.net>
+WORKDIR /var/www/html
+EXPOSE 8000
+
+# 拉去最新源码
+ADD https://download.fastgit.org/scau-emotion/manage-api-service/archive/master.zip /var/www/html
+Message from syslogd@EmotionServer at May  4 14:56:29 ...
+ kernel:unregister_netdevice: waiting for lo to become free. Usage count = 1
+RUN rm -r ./manage-api-service-master
+RUN cp .env.dev .env
+
+# 下载依赖
+RUN composer install --no-ansi --no-interaction
+
+# 数据库迁移
+RUN php artisan migrate --no-ansi --no-interaction
+
+# 单元测试
+RUN /var/www/html/vendor/bin/phpunit
+
+# 运行
+CMD php -S 0.0.0.0:8000
