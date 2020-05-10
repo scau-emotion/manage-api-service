@@ -4,7 +4,7 @@
 namespace App\Exceptions;
 
 
-class LogicException extends \Exception
+class LogicException extends Exception
 {
 
 }

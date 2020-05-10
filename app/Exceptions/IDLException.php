@@ -4,7 +4,7 @@
 namespace App\Exceptions;
 
 
-class IDLException extends \Exception
+class IDLException extends Exception
 {
 
 }

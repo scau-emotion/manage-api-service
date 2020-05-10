@@ -40,6 +40,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return DB::table(static::$table_name)->where($condition)->get()->first();
     }
 
+    public static function getUserById($id)
+    {
+        $condition = [
+            'id' => $id
+        ];
+        return DB::table(static::$table_name)->where($condition)->get()->first();
+    }
+
     public static function getUserList($page_size = 5, $page = 1)
     {
         $offset = $page_size * ($page - 1);

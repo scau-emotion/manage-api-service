@@ -73,9 +73,9 @@ $app->configure('swagger-lume');
 |
 */
 
-// $app->middleware([
-//
-// ]);
+ $app->middleware([
+     App\Http\Middleware\AddTraceID::class,
+ ]);
 
  $app->routeMiddleware([
      'auth' => App\Http\Middleware\Authenticate::class,
@@ -97,6 +97,8 @@ $app->configure('swagger-lume');
 // $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Illuminate\Redis\RedisServiceProvider::class);
 $app->register(\SwaggerLume\ServiceProvider::class);
+$app->register(App\Providers\TracingServiceProvider::class);
+
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes

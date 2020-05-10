@@ -4,37 +4,67 @@ namespace App\Http\Middleware;
 
 use App\Exceptions\Dictionary;
 use App\Exceptions\LogicException;
+use App\Modals\User;
 use Closure;
 
 class Authenticate
 {
 
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string|null  $guard
-     * @return mixed
-     */
+    private $userId;
+    private $expiredAt;
+    private $verifiedToken;
+
     public function handle($request, Closure $next, $guard = null)
     {
+        $span = app('Tracing')->startActiveSpan('auth check');
+
+
         if (env('APP_ENV') == strtolower('production')) {
-            if (empty($request->input('token')) || !$this->checkToken($request->input('token'))) {
+
+            if (
+                empty($request->input('token'))
+                or
+                ($this->getTokenInfo($request->input('token')) and !$this->checkToken())
+            ) {
+                $span->close();
                 throw new LogicException(...Dictionary::LoginInfoError);
             }
+
+            $user_id = $this->userId;
+
+            app('Tracing')->startSpan('Auth Info', [
+                'tags' => [
+                    'UserId' => $user_id
+                ]
+            ]);
+
+            app()->singleton('user', function () use ($user_id) {
+                return User::getUserById($user_id);
+            });
+
         }
+
+
+        $span->close();
 
         return $next($request);
     }
 
-    public function checkToken($token)
+    public function checkToken()
     {
-        $token = explode(',', base64_decode($token));
-        $token_verify = md5($token[0] . ',' . $token[1] . ',emotion_token');
-        if (time() < $token[1] AND $token_verify = $token_verify[3]) {
-            return true;
-        }
-        return false;
+        $token_verify = md5($this->userId . ',' . $this->expiredAt . ',emotion_token');
+
+        return (
+            time() <= $this->expiredAt AND $token_verify == $this->verifiedToken
+        );
+
+
+    }
+
+    public function getTokenInfo($token)
+    {
+        list($this->userId, $this->expiredAt, $this->verifiedToken) = explode(',', base64_decode($token));
+
+        return true;
     }
 }
