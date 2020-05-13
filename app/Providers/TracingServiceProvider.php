@@ -20,10 +20,15 @@ class TracingServiceProvider extends ServiceProvider
     {
         // 单例模式绑定追踪器
         $this->app->singleton('Tracing', function () {
-            $endpoint = Endpoint::create('Manage-Api', '127.0.0.1', null, 8000);
+            $endpoint = Endpoint::create(
+                env("APP_NAME"),
+                null,
+                null,
+                null
+            );
             $reporter = new Http(
                 CurlFactory::create(),
-                ['endpoint_url' => 'http://192.168.2.8:9411/api/v2/spans']
+                ['endpoint_url' => env("ZIPKIN_ENDPOINT")]
             );
             $sampler = BinarySampler::createAsAlwaysSample();
             $tracing = TracingBuilder::create()

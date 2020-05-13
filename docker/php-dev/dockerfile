@@ -11,7 +11,7 @@ ADD https://github.com/scau-emotion/manage-api-service/archive/master.zip /var/w
 RUN unzip master.zip
 RUN cp -ar ./manage-api-service-master/. ./
 RUN rm -r ./manage-api-service-master
-RUN cp .env.test .env
+RUN cp .env.dev .env
 
 # 下载依赖
 RUN composer install --no-ansi --no-interaction
