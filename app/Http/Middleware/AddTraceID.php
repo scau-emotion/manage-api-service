@@ -13,7 +13,10 @@ class AddTraceID
 
     public function handle($request, Closure $next, $guard = null)
     {
-        header('Trace-Id: ' . $this->getTraceId($request));
+        if (env("APP_TRACING") == "true") {
+            header('Trace-Id: ' . $this->getTraceId($request));
+        }
+
         return $next($request);
 
     }
